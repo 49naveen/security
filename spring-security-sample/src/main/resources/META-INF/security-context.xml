@@ -13,7 +13,7 @@
 	
 	<bean id="siteminderFilter" class="org.springframework.security.web.authentication.preauth.RequestHeaderAuthenticationFilter">
 		<property name="principalRequestHeader" value="STANDARDID" />
-		<property name="authenticationManager" value="authenticationManager" />
+		<property name="authenticationManager" ref="authenticationManager" />
 	</bean>
 	
 	<bean id="preauthAuthProvider" class="org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider">
@@ -28,7 +28,7 @@
 	
 	<bean id="http403EntryPoint" class="org.springframework.security.web.authentication.Http403ForbiddenEntryPoint" />
 
-	<security:authentication-manager>
+	<security:authentication-manager alias = "authenticationManager">
 		<security:authentication-provider ref="preauthAuthProvider" />
 	</security:authentication-manager>
 </beans>
