@@ -6,19 +6,29 @@
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd">
 
-	<security:http auto-config="true">
+	<security:http auto-config="false" entry-point-ref="http403EntryPoint">
 		<security:intercept-url pattern="/**" access="ROLE_ADMIN" />
+		<security:custom-filter position="PRE_AUTH_FILTER" ref="siteminderFilter"/>
 	</security:http>
+	
+	<bean id="siteminderFilter" class="org.springframework.security.web.authentication.preauth.RequestHeaderAuthenticationFilter">
+		<property name="principalRequestHeader" value="STANDARDID" />
+		<property name="authenticationManager" value="authenticationManager" />
+	</bean>
+	
+	<bean id="preauthAuthProvider" class="org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider">
+		<property name="preAuthenticatedUserDetailsService">
+			<bean id="userDetailsServiceWrapper" class="org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper">
+				<property name="userDetailsService" ref="customUserDetailsService" />
+			</bean>
+		</property>
+	</bean>
+	
+	<bean id="customUserDetailsService" class="com.chase.vms.security.CustomUserDetailsService" />
+	
+	<bean id="http403EntryPoint" class="org.springframework.security.web.authentication.Http403ForbiddenEntryPoint" />
 
 	<security:authentication-manager>
-		<security:authentication-provider>
-			<security:user-service>
-				<security:user name="alpha" password="pass1"
-					authorities="ROLE_ADMIN" />
-			</security:user-service>
-
-		</security:authentication-provider>
+		<security:authentication-provider ref="preauthAuthProvider" />
 	</security:authentication-manager>
-
-
 </beans>
